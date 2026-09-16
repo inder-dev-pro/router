@@ -212,7 +212,7 @@
       "api_endpoint": "http://localhost:11434/v1",
       "used_in": ["Ollama", "vLLM"]
     },
-    "codellama-34b": {
+    "code-llama-34b": {
       "size": "34B",
       "feature": "Code Llama 34B Instruct is Meta's Llama-2-based coding model, an early but still widely mirrored open-weight option for infilling, completion, and instruction-following code tasks. It is free to run; you only pay for the compute (GPU) it runs on.",
       "input_price": 0.0,

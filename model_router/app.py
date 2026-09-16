@@ -215,8 +215,8 @@ class RouterServices:
         category = state["classifier_category"]
         scores = self.index.cosine_scores(state["query_embedding"])
 
-        # ── perf proxy: g(E_q, E_m) + category boost ──────────────────
-        raw_quality = [
+        # ── capability-fit proxy: g(E_q, E_m) + category boost ────────
+        raw_capability_fit = [
             cosine_score + _category_boost(profile, category)
             for profile, cosine_score in zip(self.profiles, scores, strict=True)
         ]
@@ -230,7 +230,7 @@ class RouterServices:
         ]
 
         # ── min-max normalise both to [0, 1] ──────────────────────────
-        perf_normalized = _normalize(raw_quality, flat_value=1.0)
+        perf_normalized = _normalize(raw_capability_fit, flat_value=1.0)
         cost_normalized = _normalize(request_costs, flat_value=0.0)
 
         # ── (α, β) from the named mode or explicit CLI overrides ──────
@@ -245,7 +245,7 @@ class RouterServices:
         for profile, cosine_score, raw_q, perf_n, cost_usd, cost_n in zip(
             self.profiles,
             scores,
-            raw_quality,
+            raw_capability_fit,
             perf_normalized,
             request_costs,
             cost_normalized,
@@ -258,7 +258,7 @@ class RouterServices:
                     "catalog_key": profile.catalog_key,
                     "similarity": round(cosine_score, 6),
                     "category_boost": round(boost, 6),
-                    "quality_raw": round(raw_q, 6),
+                    "capability_fit_raw": round(raw_q, 6),
                     "perf_normalized": round(perf_n, 6),
                     "estimated_request_cost_usd": round(cost_usd, 8),
                     "cost_normalized": round(cost_n, 6),

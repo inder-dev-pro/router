@@ -1,0 +1,113 @@
+{
+  "legacy_models": {
+    "claude-instant-v1": {
+      "size": "Undisclosed",
+      "feature": "Use case: fast, lightweight conversational tasks such as simple Q&A, summarization, classification, rewriting, and basic text analysis. Use when low latency and lower cost are more important than deep reasoning or complex problem solving.",
+      "input_price": 0.80,
+      "output_price": 2.40,
+      "model": "claude-instant-v1",
+      "service": "Anthropic",
+      "api_endpoint": "https://api.anthropic.com/v1"
+    },
+
+    "claude-v1": {
+      "size": "Undisclosed",
+      "feature": "Use case: general-purpose language understanding and generation, including reasoning, writing, summarization, analysis, and multi-step instructions. Use when a task needs stronger language understanding than a lightweight model but does not require highly specialized reasoning.",
+      "input_price": 8.00,
+      "output_price": 24.00,
+      "model": "claude-v1",
+      "service": "Anthropic",
+      "api_endpoint": "https://api.anthropic.com/v1"
+    },
+
+    "claude-v2": {
+      "size": "Undisclosed",
+      "feature": "Use case: complex instruction following, long-form writing, reasoning, coding, document analysis, and detailed question answering. Use when the prompt requires stronger reasoning or handling of long and information-dense inputs.",
+      "input_price": 8.00,
+      "output_price": 24.00,
+      "model": "claude-2.0",
+      "service": "Anthropic",
+      "api_endpoint": "https://api.anthropic.com/v1"
+    },
+
+    "gpt-3.5-turbo-1106": {
+      "size": "Undisclosed",
+      "feature": "Use case: routine conversational AI, text generation, summarization, extraction, classification, simple coding, and structured-output tasks. Use when the prompt is straightforward and does not require advanced reasoning, with priority on cost efficiency and response speed.",
+      "input_price": 1.00,
+      "output_price": 2.00,
+      "model": "gpt-3.5-turbo-1106",
+      "service": "OpenAI",
+      "api_endpoint": "https://api.openai.com/v1"
+    },
+
+    "gpt-4-1106-preview": {
+      "size": "Undisclosed",
+      "feature": "Use case: complex reasoning, advanced coding, difficult analysis, long-context document understanding, and tasks requiring strong instruction following. Use when a prompt is substantially more difficult than routine generation and benefits from GPT-4-level capability or a large context window.",
+      "input_price": 10.00,
+      "output_price": 30.00,
+      "model": "gpt-4-1106-preview",
+      "service": "OpenAI",
+      "api_endpoint": "https://api.openai.com/v1"
+    },
+
+    "meta/code-llama-34b-instruct": {
+      "size": "34B",
+      "feature": "Use case: code generation, code completion, debugging, code explanation, and programming-focused instruction following across multiple languages. Use when the prompt is primarily a software-development task and a specialized open-weight coding model is preferred.",
+      "input_price": 0.00,
+      "output_price": 0.00,
+      "model": "codellama/code-llama-34b-instruct-hf",
+      "service": "Self-hosted / Cloud hosting providers",
+      "api_endpoint": null
+    },
+
+    "meta/llama-2-70b-chat": {
+      "size": "70B",
+      "feature": "Use case: general conversational assistance, question answering, reasoning, summarization, and instruction following using an open-weight model. Use when a strong general-purpose open model is needed for conversational tasks without relying on a proprietary API.",
+      "input_price": 0.00,
+      "output_price": 0.00,
+      "model": "meta-llama/Llama-2-70b-chat",
+      "service": "Self-hosted / Cloud hosting providers",
+      "api_endpoint": null
+    },
+
+    "mistralai/mistral-7b-chat": {
+      "size": "7.3B",
+      "feature": "Use case: lightweight general-purpose chat, instruction following, summarization, rewriting, and basic reasoning. Use when the task is relatively simple and the system needs a smaller, faster open-weight model with lower inference requirements.",
+      "input_price": 0.00,
+      "output_price": 0.00,
+      "model": "mistralai/Mistral-7B-Instruct-v0.1",
+      "service": "Self-hosted / Hugging Face / Cloud hosting providers",
+      "api_endpoint": null
+    },
+
+    "mistralai/mixtral-8x7b-chat": {
+      "size": "46.7B total / 12.9B active",
+      "feature": "Use case: general chat, reasoning, coding, summarization, multilingual generation, and more demanding instruction-following tasks. Use when a task needs more capability than a small dense model while retaining relatively efficient MoE inference.",
+      "input_price": 0.00,
+      "output_price": 0.00,
+      "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+      "service": "Self-hosted / Hugging Face / Cloud hosting providers",
+      "api_endpoint": null
+    },
+
+    "WizardLM/WizardLM-13B-V1.2": {
+      "size": "13B",
+      "feature": "Use case: instruction following, conversational assistance, detailed responses, reasoning, and general-purpose text generation. Use when a task needs more instruction-following capability than a small lightweight model but does not justify a much larger model.",
+      "input_price": 0.00,
+      "output_price": 0.00,
+      "model": "WizardLMTeam/WizardLM-13B-V1.2",
+      "service": "Self-hosted / Hugging Face",
+      "api_endpoint": null
+    },
+
+    "zero-one-ai/Yi-34B-Chat": {
+      "size": "34B",
+      "feature": "Use case: general conversational AI, reasoning, writing, summarization, and especially English/Chinese bilingual tasks. Use when the prompt requires a capable open-weight general-purpose model or when Chinese-language understanding and generation are important.",
+      "input_price": 0.00,
+      "output_price": 0.00,
+      "model": "01-ai/Yi-34B-Chat",
+      "service": "Self-hosted / Hugging Face / Cloud hosting providers",
+      "api_endpoint": null
+    }
+  }
+}
