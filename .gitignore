@@ -5,5 +5,4 @@ data/model_embeddings_*.npz
 paper/
 data/routerbench_raw.csv
 data/routerbench_raw.pkl
-*mbp*
 data/benchmark_embeddings_qwen3_0.6b.npz
