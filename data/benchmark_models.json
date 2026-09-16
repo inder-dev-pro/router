@@ -7,7 +7,8 @@
       "output_price": 2.40,
       "model": "claude-instant-v1",
       "service": "Anthropic",
-      "api_endpoint": "https://api.anthropic.com/v1"
+      "api_endpoint": "https://api.anthropic.com/v1",
+      "tier": "standard"
     },
 
     "claude-v1": {
@@ -17,7 +18,8 @@
       "output_price": 24.00,
       "model": "claude-v1",
       "service": "Anthropic",
-      "api_endpoint": "https://api.anthropic.com/v1"
+      "api_endpoint": "https://api.anthropic.com/v1",
+      "tier": "standard"
     },
 
     "claude-v2": {
@@ -27,7 +29,8 @@
       "output_price": 24.00,
       "model": "claude-2.0",
       "service": "Anthropic",
-      "api_endpoint": "https://api.anthropic.com/v1"
+      "api_endpoint": "https://api.anthropic.com/v1",
+      "tier": "advanced"
     },
 
     "gpt-3.5-turbo-1106": {
@@ -37,7 +40,8 @@
       "output_price": 2.00,
       "model": "gpt-3.5-turbo-1106",
       "service": "OpenAI",
-      "api_endpoint": "https://api.openai.com/v1"
+      "api_endpoint": "https://api.openai.com/v1",
+      "tier": "standard"
     },
 
     "gpt-4-1106-preview": {
@@ -47,17 +51,19 @@
       "output_price": 30.00,
       "model": "gpt-4-1106-preview",
       "service": "OpenAI",
-      "api_endpoint": "https://api.openai.com/v1"
+      "api_endpoint": "https://api.openai.com/v1",
+      "tier": "advanced"
     },
 
-    "meta/code-llama-34b-instruct": {
+    "meta/code-llama-instruct-34b-chat": {
       "size": "34B",
       "feature": "Use case: code generation, code completion, debugging, code explanation, and programming-focused instruction following across multiple languages. Use when the prompt is primarily a software-development task and a specialized open-weight coding model is preferred.",
       "input_price": 0.00,
       "output_price": 0.00,
       "model": "codellama/code-llama-34b-instruct-hf",
       "service": "Self-hosted / Cloud hosting providers",
-      "api_endpoint": null
+      "api_endpoint": null,
+      "tier": "advanced"
     },
 
     "meta/llama-2-70b-chat": {
@@ -67,7 +73,8 @@
       "output_price": 0.00,
       "model": "meta-llama/Llama-2-70b-chat",
       "service": "Self-hosted / Cloud hosting providers",
-      "api_endpoint": null
+      "api_endpoint": null,
+      "tier": "advanced"
     },
 
     "mistralai/mistral-7b-chat": {
@@ -77,7 +84,8 @@
       "output_price": 0.00,
       "model": "mistralai/Mistral-7B-Instruct-v0.1",
       "service": "Self-hosted / Hugging Face / Cloud hosting providers",
-      "api_endpoint": null
+      "api_endpoint": null,
+      "tier": "standard"
     },
 
     "mistralai/mixtral-8x7b-chat": {
@@ -87,7 +95,8 @@
       "output_price": 0.00,
       "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
       "service": "Self-hosted / Hugging Face / Cloud hosting providers",
-      "api_endpoint": null
+      "api_endpoint": null,
+      "tier": "advanced"
     },
 
     "WizardLM/WizardLM-13B-V1.2": {
@@ -97,7 +106,8 @@
       "output_price": 0.00,
       "model": "WizardLMTeam/WizardLM-13B-V1.2",
       "service": "Self-hosted / Hugging Face",
-      "api_endpoint": null
+      "api_endpoint": null,
+      "tier": "standard"
     },
 
     "zero-one-ai/Yi-34B-Chat": {
@@ -107,7 +117,8 @@
       "output_price": 0.00,
       "model": "01-ai/Yi-34B-Chat",
       "service": "Self-hosted / Hugging Face / Cloud hosting providers",
-      "api_endpoint": null
+      "api_endpoint": null,
+      "tier": "advanced"
     }
   }
 }
