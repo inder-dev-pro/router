@@ -1,4 +1,4 @@
-sample_id,eval_name,prompt,routing_mode,alpha,beta,selected_model,selection_group,selection_reason,classifier_category,similarity,perf_normalized,reward,estimated_cost_usd,cost_normalized,category_boost,latency_s,error
+python -m data.scripts.benchmark_mbppsample_id,eval_name,prompt,routing_mode,alpha,beta,selected_model,selection_group,selection_reason,classifier_category,similarity,perf_normalized,reward,estimated_cost_usd,cost_normalized,category_boost,latency_s,error
 mbpp.dev.0,mbpp,['Write a function to find the shared elements from the given two lists.'],skill_based,1.0,0.0,gemini-3.5-flash,standard_model_group,standard request,code_generation,0.358621,1.0,1.0,0.0092445,0.3,0.02,8.8148,
 mbpp.dev.0,mbpp,['Write a function to find the shared elements from the given two lists.'],mixed,0.6,0.4,deepseek-v3.2,standard_model_group,standard request,code_generation,0.337463,0.840432,0.498876,0.00041473,0.013459,0.01,3.0634,
 mbpp.dev.0,mbpp,['Write a function to find the shared elements from the given two lists.'],cost_efficient,0.2,0.8,deepseek-v3.2,standard_model_group,standard request,code_generation,0.337463,0.840432,0.157319,0.00041473,0.013459,0.01,2.8851,

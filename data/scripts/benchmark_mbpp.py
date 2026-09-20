@@ -31,6 +31,8 @@ from model_router.app import ModelRouter, RouterConfig, RoutingMode  # noqa: E40
 # ── Configuration ────────────────────────────────────────────────────────
 MODES: list[RoutingMode] = ["skill_based", "mixed", "cost_efficient"]
 DATA_FILE = PROJECT_ROOT / "data" / "routerbench_raw_mbpp.csv"
+BENCHMARK_CATALOG = PROJECT_ROOT / "data" / "benchmark_models.json"
+BENCHMARK_INDEX = PROJECT_ROOT / "data" / "benchmark_embeddings_qwen3_0.6b.npz"
 
 
 def load_prompts(path: Path, *, limit: int | None = None) -> list[dict[str, str]]:
@@ -64,11 +66,21 @@ def run_benchmark(
     modes: list[RoutingMode],
     *,
     route_only: bool = True,
+    catalog_path: Path = BENCHMARK_CATALOG,
+    index_path: Path = BENCHMARK_INDEX,
 ) -> list[dict[str, object]]:
     """Route every prompt through the router for each mode and collect results."""
 
     # Build the router once — the expensive index/embedding init is shared.
-    router = ModelRouter(RouterConfig())
+    # When benchmarking, use the benchmark catalog (legacy models from RouterBench)
+    # so that embeddings and similarity scores match the actual candidate pool.
+    config = RouterConfig(
+        catalog_path=catalog_path,
+        user_catalog_path=None,
+        index_path=index_path,
+    )
+    router = ModelRouter(config)
+    print(f"Using catalog: {catalog_path.name}")
     total = len(prompts) * len(modes)
     results: list[dict[str, object]] = []
 
@@ -189,6 +201,12 @@ def main() -> int:
         action="store_true",
         help="Actually invoke the selected model (default: route only)",
     )
+    parser.add_argument(
+        "--catalog",
+        type=Path,
+        default=BENCHMARK_CATALOG,
+        help="Model catalog JSON to use (default: benchmark_models.json)",
+    )
     args = parser.parse_args()
 
     if args.output is None:
@@ -207,7 +225,14 @@ def main() -> int:
     print(f"Route only: {not args.invoke}")
     print()
 
-    results = run_benchmark(prompts, MODES, route_only=not args.invoke)
+    # Derive the index path from the catalog path: same directory, same naming convention.
+    index_path = args.catalog.parent / f"{args.catalog.stem}_embeddings_qwen3_0.6b.npz"
+    results = run_benchmark(
+        prompts, MODES,
+        route_only=not args.invoke,
+        catalog_path=args.catalog,
+        index_path=index_path,
+    )
     write_csv(results, args.output)
     return 0
 

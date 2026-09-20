@@ -2,7 +2,7 @@
   "legacy_models": {
     "claude-instant-v1": {
       "size": "Undisclosed",
-      "feature": "Use case: fast, lightweight conversational tasks such as simple Q&A, summarization, classification, rewriting, and basic text analysis. Use when low latency and lower cost are more important than deep reasoning or complex problem solving.",
+      "feature": "Use case: fast, lightweight conversational tasks such as simple Q&A, summarization, classification, rewriting, and basic text analysis. Use when low latency and lower cost are more important than deep reasoning or complex problem solving. Coding: Claude Instant 1.2 (the latest Instant release) scores 58.7% pass@1 on Codex HumanEval (Python), up from 52.8% for Instant 1.1 (Anthropic, Aug 2023). 100K-token context. Suitable for simple functions, boilerplate, docstrings and short code explanations; route multi-file, algorithmic or debugging-heavy tasks to a higher-tier model.",
       "input_price": 0.80,
       "output_price": 2.40,
       "model": "claude-instant-v1",
@@ -13,7 +13,7 @@
 
     "claude-v1": {
       "size": "Undisclosed",
-      "feature": "Use case: general-purpose language understanding and generation, including reasoning, writing, summarization, analysis, and multi-step instructions. Use when a task needs stronger language understanding than a lightweight model but does not require highly specialized reasoning.",
+      "feature": "Use case: general-purpose language understanding and generation, including reasoning, writing, summarization, analysis, and multi-step instructions. Use when a task needs stronger language understanding than a lightweight model but does not require highly specialized reasoning. Coding: Claude 1.3 scores 56.0% pass@1 on Codex HumanEval (Python), per Anthropic's Claude 2 announcement and model card. Default context is 9K tokens (a 100K variant, claude-1.3-100k, also existed). Its HumanEval score is below claude-instant-v1 (58.7%) at roughly 10x the price, so for coding prefer claude-v2 (71.2%), or claude-instant-v1 for cheap, simple tasks.",
       "input_price": 8.00,
       "output_price": 24.00,
       "model": "claude-v1",
@@ -24,7 +24,7 @@
 
     "claude-v2": {
       "size": "Undisclosed",
-      "feature": "Use case: complex instruction following, long-form writing, reasoning, coding, document analysis, and detailed question answering. Use when the prompt requires stronger reasoning or handling of long and information-dense inputs.",
+      "feature": "Use case: complex instruction following, long-form writing, reasoning, coding, document analysis, and detailed question answering. Use when the prompt requires stronger reasoning or handling of long and information-dense inputs. Coding: Claude 2 scores 71.2% pass@1 on Codex HumanEval (Python), up from 56.0% for Claude 1.3 (Anthropic, Jul 2023). 100K-token context for reading or reviewing large files and codebases. The strongest coding model among the Claude entries here; a good fit for code review, explanation, multi-step logic and documentation-heavy tasks.",
       "input_price": 8.00,
       "output_price": 24.00,
       "model": "claude-2.0",
@@ -35,7 +35,7 @@
 
     "gpt-3.5-turbo-1106": {
       "size": "Undisclosed",
-      "feature": "Use case: routine conversational AI, text generation, summarization, extraction, classification, simple coding, and structured-output tasks. Use when the prompt is straightforward and does not require advanced reasoning, with priority on cost efficiency and response speed.",
+      "feature": "Use case: routine conversational AI, text generation, summarization, extraction, classification, simple coding, and structured-output tasks. Use when the prompt is straightforward and does not require advanced reasoning, with priority on cost efficiency and response speed. Coding: EvalPlus leaderboard (Nov 2023 model snapshot) reports 72.6-76.8% pass@1 on HumanEval, 65.9-70.7% on HumanEval+, and 81.7-82.5% on MBPP (ranges reflect different EvalPlus dataset/harness versions; the widely quoted 48.1% HumanEval figure comes from OpenAI's March 2023 GPT-4 report and reflects an earlier snapshot). 16K-token context, 4,096-token max output, JSON mode and parallel function calling. Best suited to short scripts, snippets and simple bug fixes; escalate large refactors or complex algorithms.",
       "input_price": 1.00,
       "output_price": 2.00,
       "model": "gpt-3.5-turbo-1106",
@@ -46,7 +46,7 @@
 
     "gpt-4-1106-preview": {
       "size": "Undisclosed",
-      "feature": "Use case: complex reasoning, advanced coding, difficult analysis, long-context document understanding, and tasks requiring strong instruction following. Use when a prompt is substantially more difficult than routine generation and benefits from GPT-4-level capability or a large context window.",
+      "feature": "Use case: complex reasoning, advanced coding, difficult analysis, long-context document understanding, and tasks requiring strong instruction following. Use when a prompt is substantially more difficult than routine generation and benefits from GPT-4-level capability or a large context window. Coding: EvalPlus leaderboard (GPT-4-Turbo, Nov 2023) reports 85.4% pass@1 on HumanEval, 79.3-81.7% on HumanEval+ (varies by dataset version) and about 83% on MBPP, the highest HumanEval score of any model in this file. 128K-token context but only 4,096 max output tokens, so very large files must be generated in chunks; supports JSON mode and parallel function calling. Known for 'lazy' coding (placeholders such as '...rest of code...'): on Aider's refactoring benchmark it scored 20% with search/replace edits vs 61% with unified diffs, so ask for complete code or use diff formats. Best choice here for complex algorithms, large-codebase analysis, multi-step debugging and code review.",
       "input_price": 10.00,
       "output_price": 30.00,
       "model": "gpt-4-1106-preview",
@@ -57,7 +57,7 @@
 
     "meta/code-llama-instruct-34b-chat": {
       "size": "34B",
-      "feature": "Use case: code generation, code completion, debugging, code explanation, and programming-focused instruction following across multiple languages. Use when the prompt is primarily a software-development task and a specialized open-weight coding model is preferred.",
+      "feature": "Use case: code generation, code completion, debugging, code explanation, and programming-focused instruction following across multiple languages. Use when the prompt is primarily a software-development task and a specialized open-weight coding model is preferred. Coding (Meta, Code Llama paper): Code Llama - Instruct 34B scores 41.5% pass@1 on HumanEval (77.2% pass@10, 93.5% pass@100) and 57.0% pass@1 on MBPP. Trained on 16K-token sequences and shown to work on inputs up to about 100K tokens. Fill-in-the-middle infilling is only supported by the 7B/13B variants, so the 34B is for instruction-style generation rather than IDE-style infill. Code-specialized and not intended for general natural-language chat. Strong open-weight option for multi-language code generation, debugging and explanation, but well below GPT-4-Turbo (85.4%) and Claude 2 (71.2%) on HumanEval.",
       "input_price": 0.00,
       "output_price": 0.00,
       "model": "codellama/code-llama-34b-instruct-hf",
@@ -68,7 +68,7 @@
 
     "meta/llama-2-70b-chat": {
       "size": "70B",
-      "feature": "Use case: general conversational assistance, question answering, reasoning, summarization, and instruction following using an open-weight model. Use when a strong general-purpose open model is needed for conversational tasks without relying on a proprietary API.",
+      "feature": "Use case: general conversational assistance, question answering, reasoning, summarization, and instruction following using an open-weight model. Use when a strong general-purpose open model is needed for conversational tasks without relying on a proprietary API. Coding: general-purpose, not code-specialized. Meta reports about 29.9% HumanEval and 45.0% MBPP pass@1 for the Llama 2 70B base model (no separate chat-model coding score was published). Context is only 4,096 tokens, which limits multi-file or long-code prompts. Trails Code Llama 34B Instruct (41.5% / 57.0%) and Mixtral 8x7B (40.2% / 60.7%), so use it for code explanation or light snippets rather than as the primary coding model.",
       "input_price": 0.00,
       "output_price": 0.00,
       "model": "meta-llama/Llama-2-70b-chat",
@@ -79,7 +79,7 @@
 
     "mistralai/mistral-7b-chat": {
       "size": "7.3B",
-      "feature": "Use case: lightweight general-purpose chat, instruction following, summarization, rewriting, and basic reasoning. Use when the task is relatively simple and the system needs a smaller, faster open-weight model with lower inference requirements.",
+      "feature": "Use case: lightweight general-purpose chat, instruction following, summarization, rewriting, and basic reasoning. Use when the task is relatively simple and the system needs a smaller, faster open-weight model with lower inference requirements. Coding: Mistral reports 30.5% HumanEval (0-shot) and 47.5% MBPP (3-shot) pass@1 for the Mistral 7B base model (no separate Instruct coding score was published), comparable to Llama 2 70B's coding results at roughly a tenth of the size and approaching Code Llama 7B (31.1% / 52.5%). 8K-token context (4K sliding-window attention). Best for lightweight snippets, small scripts, code explanation and rewriting where latency and cost matter; escalate multi-step or multi-file tasks.",
       "input_price": 0.00,
       "output_price": 0.00,
       "model": "mistralai/Mistral-7B-Instruct-v0.1",
@@ -90,7 +90,7 @@
 
     "mistralai/mixtral-8x7b-chat": {
       "size": "46.7B total / 12.9B active",
-      "feature": "Use case: general chat, reasoning, coding, summarization, multilingual generation, and more demanding instruction-following tasks. Use when a task needs more capability than a small dense model while retaining relatively efficient MoE inference.",
+      "feature": "Use case: general chat, reasoning, coding, summarization, multilingual generation, and more demanding instruction-following tasks. Use when a task needs more capability than a small dense model while retaining relatively efficient MoE inference. Coding: Mistral reports 40.2% HumanEval (0-shot) and 60.7% MBPP (3-shot) pass@1 for the Mixtral 8x7B base model, versus 29.3% / 49.8% for Llama 2 70B in the same evaluation, with only about 13B parameters active per token (no separate Instruct coding score was published). 32K-token context suits multi-file prompts and long code review. Roughly on par with Code Llama 34B Instruct (41.5% / 57.0%) while also handling general and multilingual chat; below GPT-4-Turbo (85.4%) and Claude 2 (71.2%) on HumanEval.",
       "input_price": 0.00,
       "output_price": 0.00,
       "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
@@ -101,7 +101,7 @@
 
     "WizardLM/WizardLM-13B-V1.2": {
       "size": "13B",
-      "feature": "Use case: instruction following, conversational assistance, detailed responses, reasoning, and general-purpose text generation. Use when a task needs more instruction-following capability than a small lightweight model but does not justify a much larger model.",
+      "feature": "Use case: instruction following, conversational assistance, detailed responses, reasoning, and general-purpose text generation. Use when a task needs more instruction-following capability than a small lightweight model but does not justify a much larger model. Coding: the WizardLM team reports 36.6% pass@1 on HumanEval (self-reported) for this Llama 2 13B fine-tune, up from about 20% for base Llama 2 13B. 4K-token context. A general-purpose instruction model rather than a code specialist: suitable for simple functions and snippets; for heavier coding use Code Llama 34B Instruct or Mixtral 8x7B.",
       "input_price": 0.00,
       "output_price": 0.00,
       "model": "WizardLMTeam/WizardLM-13B-V1.2",
@@ -112,7 +112,7 @@
 
     "zero-one-ai/Yi-34B-Chat": {
       "size": "34B",
-      "feature": "Use case: general conversational AI, reasoning, writing, summarization, and especially English/Chinese bilingual tasks. Use when the prompt requires a capable open-weight general-purpose model or when Chinese-language understanding and generation are important.",
+      "feature": "Use case: general conversational AI, reasoning, writing, summarization, and especially English/Chinese bilingual tasks. Use when the prompt requires a capable open-weight general-purpose model or when Chinese-language understanding and generation are important. Coding: a relative weakness. The Yi technical report gives 23.2% HumanEval (0-shot) and 41.0% MBPP (3-shot) pass@1 for the Yi-34B base model, below Llama 2 70B (31.7% / 45.0%) and Mistral 7B (30.5% / 47.5%) in the same table, and 01.AI acknowledges gaps in math and coding. 4K-token context (extendable to 32K at inference; the 200K versions are separate base models). Prefer another model for coding-heavy prompts; use Yi-34B-Chat mainly where Chinese-language handling matters, such as Chinese code comments or explanations.",
       "input_price": 0.00,
       "output_price": 0.00,
       "model": "01-ai/Yi-34B-Chat",
