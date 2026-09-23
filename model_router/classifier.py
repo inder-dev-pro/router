@@ -98,7 +98,7 @@ def parse_route(content: str) -> str | None:
 class VLLMClassifier:
     def __init__(
         self,
-        base_url: str = "http://localhost:8000/v1",
+        base_url: str = "http://127.0.0.1:8080",
         model: str | None = None,
         timeout: int = 30,
     ) -> None:

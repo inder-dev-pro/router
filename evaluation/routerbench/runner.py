@@ -96,7 +96,7 @@ class BenchmarkRunner:
         self,
         catalog_path: Path = _BENCHMARK_CATALOG,
         index_path: Path = _BENCHMARK_INDEX,
-        classifier_base_url: str = "http://localhost:8000/v1",
+        classifier_base_url: str = "http://127.0.0.1:8080",
         classifier_model: str | None = None,
     ) -> None:
         self.catalog_path = catalog_path

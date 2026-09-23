@@ -68,7 +68,7 @@ class RouterConfig:
     user_catalog_path: Path | None = DEFAULT_USER_CATALOG_PATH
     index_path: Path = DEFAULT_INDEX_PATH
     embedding_model: str = DEFAULT_EMBEDDING_MODEL
-    classifier_base_url: str = "http://localhost:8000/v1"
+    classifier_base_url: str = "http://127.0.0.1:8080"
     classifier_model: str | None = None
     classifier_timeout: int = 30
     target_timeout: int = 90
