@@ -5,7 +5,7 @@ This project routes a coding request through the following graph:
 ```text
 user query
   → Qwen/Qwen3-Embedding-0.6B query embedding
-  → existing Arch-Router vLLM classifier (localhost:8000)
+  → existing adapted-arch-router vLLM classifier (localhost:8000)
   → cosine similarity against embedded model catalog
   → standard or advanced model subgroup
   → selected model provider

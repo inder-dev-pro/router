@@ -1,4 +1,4 @@
-"""Client for the existing Arch-Router vLLM classification server."""
+"""Client for the existing adapted-arch-router vLLM classification server."""
 
 from __future__ import annotations
 

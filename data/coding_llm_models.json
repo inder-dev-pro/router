@@ -8,7 +8,11 @@
       "model": "gpt-5.6-sol",
       "service": "OpenAI",
       "api_endpoint": "https://api.openai.com/v1",
-      "used_in": ["GitHub Copilot", "OpenAI Codex CLI / ChatGPT Work", "Cursor"]
+      "used_in": [
+        "GitHub Copilot",
+        "OpenAI Codex CLI / ChatGPT Work",
+        "Cursor"
+      ]
     },
     "gpt-5.6-terra": {
       "size": "Undisclosed (mid-tier)",
@@ -18,7 +22,10 @@
       "model": "gpt-5.6-terra",
       "service": "OpenAI",
       "api_endpoint": "https://api.openai.com/v1",
-      "used_in": ["GitHub Copilot", "OpenAI Codex CLI / ChatGPT Work"]
+      "used_in": [
+        "GitHub Copilot",
+        "OpenAI Codex CLI / ChatGPT Work"
+      ]
     },
     "gpt-5.1-codex": {
       "size": "Undisclosed (coding-specialized)",
@@ -28,7 +35,10 @@
       "model": "gpt-5.1-codex",
       "service": "OpenAI",
       "api_endpoint": "https://api.openai.com/v1",
-      "used_in": ["OpenAI Codex CLI", "GitHub Copilot (Codex mode)"]
+      "used_in": [
+        "OpenAI Codex CLI",
+        "GitHub Copilot (Codex mode)"
+      ]
     },
     "claude-opus-5": {
       "size": "Undisclosed (flagship)",
@@ -38,7 +48,12 @@
       "model": "claude-opus-5",
       "service": "Anthropic",
       "api_endpoint": "https://api.anthropic.com/v1",
-      "used_in": ["Claude Code", "Cursor", "GitHub Copilot", "Windsurf"]
+      "used_in": [
+        "Claude Code",
+        "Cursor",
+        "GitHub Copilot",
+        "Windsurf"
+      ]
     },
     "claude-sonnet-5": {
       "size": "Undisclosed (mid-tier)",
@@ -48,7 +63,13 @@
       "model": "claude-sonnet-5",
       "service": "Anthropic",
       "api_endpoint": "https://api.anthropic.com/v1",
-      "used_in": ["Claude Code", "Cursor", "GitHub Copilot", "Windsurf", "Cline"]
+      "used_in": [
+        "Claude Code",
+        "Cursor",
+        "GitHub Copilot",
+        "Windsurf",
+        "Cline"
+      ]
     },
     "claude-haiku-4.5": {
       "size": "Undisclosed (fast/budget)",
@@ -58,7 +79,11 @@
       "model": "claude-haiku-4-5-20251001",
       "service": "Anthropic",
       "api_endpoint": "https://api.anthropic.com/v1",
-      "used_in": ["Claude Code", "Cursor", "GitHub Copilot"]
+      "used_in": [
+        "Claude Code",
+        "Cursor",
+        "GitHub Copilot"
+      ]
     },
     "gemini-3-pro": {
       "size": "Undisclosed (flagship)",
@@ -68,7 +93,11 @@
       "model": "gemini-3-pro-preview",
       "service": "Google",
       "api_endpoint": "https://generativelanguage.googleapis.com/v1beta",
-      "used_in": ["Google Antigravity", "Gemini Code Assist", "Cursor"]
+      "used_in": [
+        "Google Antigravity",
+        "Gemini Code Assist",
+        "Cursor"
+      ]
     },
     "gemini-3.5-flash": {
       "size": "Undisclosed (fast/budget)",
@@ -78,7 +107,10 @@
       "model": "gemini-3.5-flash",
       "service": "Google",
       "api_endpoint": "https://generativelanguage.googleapis.com/v1beta",
-      "used_in": ["Gemini Code Assist", "Google Antigravity"]
+      "used_in": [
+        "Gemini Code Assist",
+        "Google Antigravity"
+      ]
     },
     "grok-code-fast-1": {
       "size": "Undisclosed (coding-specialized)",
@@ -88,7 +120,12 @@
       "model": "grok-code-fast-1",
       "service": "xAI",
       "api_endpoint": "https://api.x.ai/v1",
-      "used_in": ["GitHub Copilot", "Cursor", "Cline", "opencode"]
+      "used_in": [
+        "GitHub Copilot",
+        "Cursor",
+        "Cline",
+        "opencode"
+      ]
     },
     "deepseek-v3.2": {
       "size": "671B MoE (37B activated)",
@@ -98,7 +135,12 @@
       "model": "deepseek-chat",
       "service": "DeepSeek",
       "api_endpoint": "https://api.deepseek.com/v1",
-      "used_in": ["Cline", "Continue.dev", "Roo Code", "Aider"]
+      "used_in": [
+        "Cline",
+        "Continue.dev",
+        "Roo Code",
+        "Aider"
+      ]
     },
     "qwen3-coder-plus": {
       "size": "480B MoE (flagship coding tier)",
@@ -108,7 +150,11 @@
       "model": "qwen3-coder-plus",
       "service": "Alibaba Cloud (Qwen)",
       "api_endpoint": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
-      "used_in": ["Qwen Code CLI", "Cline", "Kilo Code"]
+      "used_in": [
+        "Qwen Code CLI",
+        "Cline",
+        "Kilo Code"
+      ]
     },
     "codestral-2508": {
       "size": "22B (coding-specialized)",
@@ -118,7 +164,11 @@
       "model": "codestral-2508",
       "service": "Mistral AI",
       "api_endpoint": "https://api.mistral.ai/v1",
-      "used_in": ["Continue.dev", "JetBrains AI Assistant", "Tabnine"]
+      "used_in": [
+        "Continue.dev",
+        "JetBrains AI Assistant",
+        "Tabnine"
+      ]
     },
     "glm-4.6": {
       "size": "335B MoE (32B activated)",
@@ -128,7 +178,12 @@
       "model": "glm-4.6",
       "service": "Z.ai (Zhipu)",
       "api_endpoint": "https://api.z.ai/api/paas/v4",
-      "used_in": ["Claude Code (proxied)", "Cline", "Roo Code", "Kilo Code"]
+      "used_in": [
+        "Claude Code (proxied)",
+        "Cline",
+        "Roo Code",
+        "Kilo Code"
+      ]
     },
     "kimi-k2": {
       "size": "1T MoE (32B activated)",
@@ -138,7 +193,11 @@
       "model": "kimi-k2-0905-preview",
       "service": "Moonshot AI",
       "api_endpoint": "https://api.moonshot.ai/v1",
-      "used_in": ["Kilo Code", "Cline", "Roo Code"]
+      "used_in": [
+        "Kilo Code",
+        "Cline",
+        "Roo Code"
+      ]
     },
     "minimax-m2": {
       "size": "230B MoE (10B activated)",
@@ -148,7 +207,11 @@
       "model": "MiniMax-M2",
       "service": "MiniMax",
       "api_endpoint": "https://api.minimax.io/v1",
-      "used_in": ["Cline", "Kilo Code", "Roo Code"]
+      "used_in": [
+        "Cline",
+        "Kilo Code",
+        "Roo Code"
+      ]
     }
   },
   "open_source_self_hosted_models": {
@@ -160,7 +223,12 @@
       "model": "qwen2.5-coder:32b",
       "service": "Self-hosted (Ollama / vLLM)",
       "api_endpoint": "http://localhost:11434/v1",
-      "used_in": ["Ollama", "vLLM", "Continue.dev (local)", "Tabby"]
+      "used_in": [
+        "Ollama",
+        "vLLM",
+        "Continue.dev (local)",
+        "Tabby"
+      ]
     },
     "qwen2.5-coder-14b": {
       "size": "14B",
@@ -169,8 +237,12 @@
       "output_price": 0.0,
       "model": "qwen2.5-coder:14b",
       "service": "Self-hosted (Ollama / vLLM)",
-      "api_endpoint": "http://localhost:11434/v1",
-      "used_in": ["Ollama", "vLLM", "Continue.dev (local)"]
+      "api_endpoint": "http://127.0.0.1/8081",
+      "used_in": [
+        "Ollama",
+        "vLLM",
+        "Continue.dev (local)"
+      ]
     },
     "qwen2.5-coder-7b": {
       "size": "7B",
@@ -180,7 +252,11 @@
       "model": "qwen2.5-coder:7b",
       "service": "Self-hosted (Ollama / vLLM)",
       "api_endpoint": "http://localhost:11434/v1",
-      "used_in": ["Ollama", "vLLM", "Continue.dev (local)"]
+      "used_in": [
+        "Ollama",
+        "vLLM",
+        "Continue.dev (local)"
+      ]
     },
     "qwen3-coder-30b-a3b": {
       "size": "30B MoE (3B activated)",
@@ -190,7 +266,11 @@
       "model": "qwen3-coder:30b",
       "service": "Self-hosted (Ollama / vLLM)",
       "api_endpoint": "http://localhost:11434/v1",
-      "used_in": ["Ollama", "vLLM", "opencode (local)"]
+      "used_in": [
+        "Ollama",
+        "vLLM",
+        "opencode (local)"
+      ]
     },
     "deepseek-r1-distill-qwen-32b": {
       "size": "32B (distilled)",
@@ -200,7 +280,10 @@
       "model": "deepseek-r1:32b",
       "service": "Self-hosted (Ollama / vLLM)",
       "api_endpoint": "http://localhost:11434/v1",
-      "used_in": ["Ollama", "vLLM"]
+      "used_in": [
+        "Ollama",
+        "vLLM"
+      ]
     },
     "deepseek-coder-v2-lite": {
       "size": "16B MoE (2.4B activated)",
@@ -210,7 +293,10 @@
       "model": "deepseek-coder-v2:16b",
       "service": "Self-hosted (Ollama / vLLM)",
       "api_endpoint": "http://localhost:11434/v1",
-      "used_in": ["Ollama", "vLLM"]
+      "used_in": [
+        "Ollama",
+        "vLLM"
+      ]
     },
     "code-llama-34b": {
       "size": "34B",
@@ -220,7 +306,10 @@
       "model": "codellama:34b",
       "service": "Self-hosted (Ollama / vLLM)",
       "api_endpoint": "http://localhost:11434/v1",
-      "used_in": ["Ollama", "vLLM"]
+      "used_in": [
+        "Ollama",
+        "vLLM"
+      ]
     },
     "starcoder2-15b": {
       "size": "15B",
@@ -230,7 +319,11 @@
       "model": "starcoder2:15b",
       "service": "Self-hosted (Ollama / vLLM)",
       "api_endpoint": "http://localhost:11434/v1",
-      "used_in": ["Ollama", "vLLM", "Tabby"]
+      "used_in": [
+        "Ollama",
+        "vLLM",
+        "Tabby"
+      ]
     },
     "llama-3.3-70b": {
       "size": "70B",
@@ -240,7 +333,10 @@
       "model": "llama3.3:70b",
       "service": "Self-hosted (Ollama / vLLM)",
       "api_endpoint": "http://localhost:11434/v1",
-      "used_in": ["Ollama", "vLLM"]
+      "used_in": [
+        "Ollama",
+        "vLLM"
+      ]
     },
     "codegemma-7b": {
       "size": "7B",
@@ -250,7 +346,10 @@
       "model": "codegemma:7b",
       "service": "Self-hosted (Ollama / vLLM)",
       "api_endpoint": "http://localhost:11434/v1",
-      "used_in": ["Ollama", "vLLM"]
+      "used_in": [
+        "Ollama",
+        "vLLM"
+      ]
     },
     "granite-code-8b": {
       "size": "8B",
@@ -260,7 +359,10 @@
       "model": "granite-code:8b",
       "service": "Self-hosted (Ollama / vLLM)",
       "api_endpoint": "http://localhost:11434/v1",
-      "used_in": ["Ollama", "vLLM"]
+      "used_in": [
+        "Ollama",
+        "vLLM"
+      ]
     },
     "devstral-small-2": {
       "size": "24B",
@@ -270,7 +372,11 @@
       "model": "devstral-small:24b",
       "service": "Self-hosted (Ollama / vLLM)",
       "api_endpoint": "http://localhost:11434/v1",
-      "used_in": ["Ollama", "vLLM", "opencode (local)"]
+      "used_in": [
+        "Ollama",
+        "vLLM",
+        "opencode (local)"
+      ]
     },
     "phi-4": {
       "size": "14B",
@@ -280,7 +386,10 @@
       "model": "phi4:14b",
       "service": "Self-hosted (Ollama / vLLM)",
       "api_endpoint": "http://localhost:11434/v1",
-      "used_in": ["Ollama", "vLLM"]
+      "used_in": [
+        "Ollama",
+        "vLLM"
+      ]
     }
   }
 }

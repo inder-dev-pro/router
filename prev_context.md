@@ -5,6 +5,7 @@
 > User context
 >
 > Attachments:
+>
 > - notebook6ba6483444.py: `~/Downloads/notebook6ba6483444.py`
 
 <details><summary>8 previous messages</summary>
@@ -140,6 +141,7 @@ I verified the server once: it returned `{'route': 'bug_fixing'}` for the notebo
 > User context
 >
 > Attachments:
+>
 > - 2608.06867v1.pdf: `~/Downloads/2608.06867v1.pdf`
 >
 > I’ll incorporate the attached paper’s retrieval/similarity guidance into the embedding and reranking design. I’m using the PDF workflow to inspect it; the Qwen index build is already running in parallel.
@@ -290,7 +292,7 @@ I incorporated the paper’s framing of routing as context/model encoders plus a
 flowchart TD
     A([START: User query])
     B[embed_query<br/>Qwen3-Embedding-0.6B]
-    C[classify_query<br/>Arch-Router via vLLM localhost:8000]
+    C[classify_query<br/>adapted-arch-router via vLLM localhost:8000]
     D[similarity_search<br/>Cosine similarity against persisted model vectors]
     E{choose_model_group<br/>Complexity / force-advanced?}
     F[standard_model_group<br/>Best standard model]
@@ -375,5 +377,5 @@ With `--route-only`, `invoke_target_model` is skipped and the graph returns the 
 >
 > System error
 >
-> You've hit your usage limit. Upgrade to Plus to continue using Codex (https://chatgpt.com/explore/plus), or try again at Oct 15th, 2026 12:01 AM.
+> You've hit your usage limit. Upgrade to Plus to continue using Codex (<https://chatgpt.com/explore/plus>), or try again at Oct 15th, 2026 12:01 AM.
 </details>

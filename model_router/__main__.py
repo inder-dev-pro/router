@@ -7,6 +7,12 @@ import json
 from pathlib import Path
 import sys
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from .app import (
     DEFAULT_CATALOG_PATH,
     DEFAULT_INDEX_PATH,

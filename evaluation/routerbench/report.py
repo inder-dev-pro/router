@@ -324,7 +324,7 @@ def generate_report(
     lines.append("## 10. Limitations")
     lines.append("")
     lines.append("- RouterBench models are legacy (2023-2024 era); results reflect routing quality on those specific models, not modern ones.")
-    lines.append("- The Arch-Router classifier may produce different categories than it would in production with different model descriptions.")
+    lines.append("- The adapted-arch-router classifier may produce different categories than it would in production with different model descriptions.")
     lines.append("- Self-hosted model prices are set to $0.00 in the benchmark catalog, which affects cost-aware routing behaviour.")
     lines.append("- Performance is binary (0/1) for MBPP; continuous metrics would behave differently.")
     lines.append("")
