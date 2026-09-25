@@ -54,7 +54,7 @@ coding-router = "coding_router.__main__:main"
 include = ["coding_router*"]
 
 [tool.setuptools.package-data]
-coding_router = ["data/*.jsonc"]
+coding_router = ["data/*.json"]
 
 [tool.ruff]
 target-version = "py310"

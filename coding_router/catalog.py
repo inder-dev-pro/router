@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
-from .config import load_jsonc
+from .config import load_json
 
 # These are deliberately explicit: a model only enters the expensive group when
 # it has been assessed as a strong fit for long-horizon or difficult work.
@@ -87,14 +87,9 @@ class ModelProfile:
 def load_catalog(
     path: Path, *, user_defined: bool = False, allow_empty: bool = False
 ) -> list[ModelProfile]:
-    """Read every catalog group without assuming a particular number of models.
-
-    Supports both ``.json`` and ``.jsonc`` files.
-    """
-    if path.suffix == ".jsonc":
-        raw = load_jsonc(path)
-    else:
-        raw = json.loads(path.read_text(encoding="utf-8"))
+    """Read every catalog group without assuming a particular number of models."""
+    from .config import load_json
+    raw = load_json(path)
 
     profiles: list[ModelProfile] = []
     for group_name, records in raw.items():
@@ -103,6 +98,11 @@ def load_catalog(
         for catalog_key, record in records.items():
             if not isinstance(record, dict):
                 continue
+            
+            # Skip disabled models
+            if not record.get("enabled", True):
+                continue
+
             profiles.append(
                 ModelProfile(
                     catalog_key=catalog_key,
@@ -124,7 +124,7 @@ def load_catalog(
                 )
             )
     if not profiles and not allow_empty:
-        raise ValueError(f"No model profiles found in {path}")
+        raise ValueError(f"No enabled model profiles found in {path}")
     return profiles
 
 

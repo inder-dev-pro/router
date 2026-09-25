@@ -1,14 +1,13 @@
-"""JSONC parser and configuration management for coding-router.
+"""Configuration management for coding-router.
 
-Handles loading JSON files that include // line comments, and manages
-the default model catalog shipped with the package.
+Handles loading the JSON model catalog and manages
+the default catalog shipped with the package.
 """
 
 from __future__ import annotations
 
 import json
 import os
-import re
 from pathlib import Path
 from typing import Any
 
@@ -31,11 +30,11 @@ def default_catalog_path() -> Path:
     """Return the path to the user's editable model catalog.
 
     On first call, if the file doesn't exist yet, the bundled template is
-    copied into ``~/.config/coding-router/coding_llm_models.jsonc``.
+    copied into ``~/.config/coding-router/coding_llm_models.json``.
     """
-    user_catalog = config_dir() / "coding_llm_models.jsonc"
+    user_catalog = config_dir() / "coding_llm_models.json"
     if not user_catalog.exists():
-        bundled = _PACKAGE_DATA_DIR / "coding_llm_models.jsonc"
+        bundled = _PACKAGE_DATA_DIR / "coding_llm_models.json"
         if bundled.exists():
             user_catalog.write_text(bundled.read_text(encoding="utf-8"), encoding="utf-8")
     return user_catalog
@@ -54,32 +53,6 @@ def default_index_path() -> Path:
     return config_dir() / "model_embeddings.npz"
 
 
-# ---------------------------------------------------------------------------
-# JSONC parser
-# ---------------------------------------------------------------------------
-
-_COMMENT_RE = re.compile(
-    r"""
-    (?P<string>"(?:[^"\\]|\\.)*")   # skip double-quoted strings
-    | (?P<comment>//[^\n]*)          # match // line comments
-    """,
-    re.VERBOSE,
-)
-
-
-def strip_jsonc_comments(text: str) -> str:
-    """Remove ``//`` line comments from JSONC text while preserving strings."""
-
-    def _replace(match: re.Match[str]) -> str:
-        if match.group("string"):
-            return match.group("string")
-        return ""  # drop the comment
-
-    return _COMMENT_RE.sub(_replace, text)
-
-
-def load_jsonc(path: Path) -> Any:
-    """Read a ``.jsonc`` or ``.json`` file, stripping ``//`` comments first."""
-    raw = path.read_text(encoding="utf-8")
-    clean = strip_jsonc_comments(raw)
-    return json.loads(clean)
+def load_json(path: Path) -> Any:
+    """Read a JSON file."""
+    return json.loads(path.read_text(encoding="utf-8"))

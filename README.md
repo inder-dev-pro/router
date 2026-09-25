@@ -43,17 +43,19 @@ This copies the bundled model catalog to `~/.config/coding-router/coding_llm_mod
 
 ### 2. Enable the models you use
 
-Open `~/.config/coding-router/coding_llm_models.jsonc` and uncomment the models you have API keys for (cloud) or running locally (self-hosted):
+Open `~/.config/coding-router/coding_llm_models.json` and change `"enabled": false` to `"enabled": true` for the models you have API keys for (cloud) or running locally (self-hosted):
 
-```jsonc
+```json
 // Before (disabled):
-// "claude-sonnet-5": {
-//   "size": "Undisclosed (mid-tier)",
-//   ...
-// },
+"claude-sonnet-5": {
+  "enabled": false,
+  "size": "Undisclosed (mid-tier)",
+  ...
+},
 
 // After (enabled):
 "claude-sonnet-5": {
+  "enabled": true,
   "size": "Undisclosed (mid-tier)",
   ...
 },

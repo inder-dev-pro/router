@@ -25,9 +25,8 @@ from pathlib import Path
 _CACHE_ENV = "CODING_ROUTER_CACHE_DIR"
 
 # Pre-quantised GGUF hosted on Hugging Face.
-# The Q4_K_M variant balances quality and size (~600-900 MB for a 1.5B model).
-DEFAULT_GGUF_REPO = "katanemo/adapted-arch-router-1.5B-GGUF"
-DEFAULT_GGUF_FILENAME = "adapted-arch-router-1.5B-Q4_K_M.gguf"
+DEFAULT_GGUF_REPO = "AaryanK/ModelGate"
+DEFAULT_GGUF_FILENAME = "ModelGate-Router.Q8_0.gguf"
 
 
 def cache_dir() -> Path:
