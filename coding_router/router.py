@@ -22,7 +22,7 @@ from typing import Any, Literal
 
 from .catalog import ModelProfile, catalog_fingerprint, load_catalogs
 from .classifier import Classification, ClassifierError, LocalClassifier
-from .config import default_catalog_path, default_index_path, default_user_models_path
+from .config import resolve_catalog_path, default_index_path, default_user_models_path
 from .embeddings import DEFAULT_EMBEDDING_MODEL, EmbeddingIndex, QwenEmbeddingEncoder
 from .invocation import ModelInvocationError, invoke_selected_model
 
@@ -351,7 +351,7 @@ class CodingRouter:
         self.config = config or RouterConfig()
         cfg = self.config
 
-        catalog_path = cfg.catalog_path or default_catalog_path()
+        catalog_path = resolve_catalog_path(cfg.catalog_path)
         user_catalog_path = cfg.user_catalog_path or default_user_models_path()
         index_path = cfg.index_path or default_index_path()
 

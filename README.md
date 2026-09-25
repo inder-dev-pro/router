@@ -10,11 +10,11 @@ reward_m = α · perf_normalized(m) − β · cost_normalized(m)
 
 ## Features
 
-- **Local classifier** — runs the `adapted-arch-router-1.5B` classifier locally via a quantised GGUF model (~600 MB, auto-downloaded). No external server needed.
+- **Local classifier** — runs the ModelGate router classifier locally via a quantised GGUF model (auto-downloaded). No external server needed.
 - **Semantic routing** — embeds your query and every model description with `Qwen3-Embedding-0.6B`, then ranks by cosine similarity + cost penalty.
 - **Cost-aware selection** — five built-in routing modes from quality-only to cost-dominant, plus arbitrary `(α, β)` overrides.
 - **Cross-platform** — Metal acceleration on macOS, CPU/CUDA on Windows and Linux.
-- **Customisable catalog** — edit a JSONC file to enable only the models you actually use.
+- **Project-local config** — catalog lives in `./router/coding_llm.json`, safe to commit to git.
 
 ## Install
 
@@ -27,50 +27,54 @@ pip install coding-router
 | Platform | What happens |
 |---|---|
 | **macOS (Apple Silicon)** | `llama-cpp-python` auto-uses Metal for GPU acceleration |
-| **macOS (Intel)** | CPU-only inference, works fine for the 1.5B classifier |
+| **macOS (Intel)** | CPU-only inference, works fine for the classifier |
 | **Windows** | CPU by default; install `llama-cpp-python` with CUDA support for GPU |
 | **Linux** | GPU offloading attempted by default; falls back to CPU |
 
 ## Quick start
 
-### 1. Initialise the model catalog
+### 1. Initialise the project
 
 ```bash
+cd your-project/
 coding-router init
 ```
 
-This copies the bundled model catalog to `~/.config/coding-router/coding_llm_models.jsonc`.
+This creates:
+- `router/coding_llm.json` — model catalog (all models included)
+- `.env.example` — lists the API key env vars you need to set
 
-### 2. Enable the models you use
+### 2. Edit the catalog
 
-Open `~/.config/coding-router/coding_llm_models.json` and change `"enabled": false` to `"enabled": true` for the models you have API keys for (cloud) or running locally (self-hosted):
-
-```json
-// Before (disabled):
-"claude-sonnet-5": {
-  "enabled": false,
-  "size": "Undisclosed (mid-tier)",
-  ...
-},
-
-// After (enabled):
-"claude-sonnet-5": {
-  "enabled": true,
-  "size": "Undisclosed (mid-tier)",
-  ...
-},
-```
+Open `router/coding_llm.json` and **delete any models you don't have access to**. Every model present in the file is available for routing.
 
 ### 3. Set API keys
 
 ```bash
+# Copy the example and fill in your keys
+cp .env.example .env
+
+# Or export directly:
 export OPENAI_API_KEY=...
 export ANTHROPIC_API_KEY=...
 export GOOGLE_API_KEY=...
-# etc.
 ```
 
-### 4. Route a query
+> **Note:** API keys are never stored in the catalog. They're always read from environment variables at runtime. `router/coding_llm.json` is safe to commit to git.
+
+### 4. Validate your setup
+
+```bash
+coding-router validate
+```
+
+This checks:
+- ✓ JSON structure is valid
+- ✓ All required fields are present
+- ✓ Cloud models have their API keys set
+- ✓ Local model endpoints are reachable
+
+### 5. Route a query
 
 ```bash
 # Route without calling a provider (dry run):
@@ -100,9 +104,9 @@ from pathlib import Path
 from coding_router import CodingRouter, RouterConfig
 
 router = CodingRouter(RouterConfig(
+    catalog_path=Path("router/coding_llm.json"),
     routing_mode="cost_efficient",       # favour cheaper models
-    classifier_backend="local",          # default: local GGUF
-    classifier_n_threads=4,              # limit CPU threads
+    classifier_backend="llama-server",   # default: auto-starts llama serve
     target_max_tokens=2048,
 ))
 ```
@@ -119,45 +123,48 @@ router = CodingRouter(RouterConfig(
 
 Override with `--alpha` and `--beta` for arbitrary sweep points.
 
-## Add custom models
+## CLI commands
 
-```bash
-# Add a local Ollama model:
-coding-router add-model \
-  --key my-local-coder \
-  --model my-coder-model \
-  --endpoint http://localhost:11434/v1 \
-  --feature "Fast local coding model for Python and TypeScript" \
-  --size "14B" \
-  --input-price 0 --output-price 0
+| Command | What it does |
+|---|---|
+| `coding-router init` | Create `router/` dir with catalog + `.env.example` |
+| `coding-router validate` | Check catalog, API keys, and endpoints |
+| `coding-router models` | List all models in the catalog |
+| `coding-router add-model` | Add a custom model to the catalog |
+| `coding-router "query"` | Route (and optionally invoke) a query |
+| `coding-router --route-only "query"` | Select a model without invoking |
 
-# Add a cloud model:
-coding-router add-model \
-  --key team-cloud-coder \
-  --model provider-coder-v1 \
-  --endpoint https://provider.example/v1 \
-  --feature "Advanced agentic model for refactors and migrations" \
-  --size "Unknown" --tier advanced \
-  --input-price 0.8 --output-price 3.2 \
-  --api-key-env TEAM_CLOUD_CODER_API_KEY
-```
+## Config resolution
 
-Use `--pool user` to route only among your added models.
+The router looks for the model catalog in this order:
+
+1. Explicit `--catalog` path passed on the CLI
+2. `LLMROUTER_CONFIG` environment variable
+3. `./router/coding_llm.json` (project-local)
+4. Error telling you to run `coding-router init`
 
 ## Classifier backends
 
-### Local GGUF (default)
+### llama-server (default, recommended)
 
-The classifier model is automatically downloaded on first use (~600 MB) and cached at `~/.cache/coding-router/`. No separate server required.
+Auto-starts `llama serve -hf AaryanK/ModelGate:Q8_0` as a background process. The model stays loaded across calls for fast subsequent requests.
 
+Requires `llama.cpp` installed:
 ```bash
-# Override the default GGUF path:
-coding-router --classifier-model-path /path/to/custom.gguf "your query"
+brew install llama.cpp  # macOS
 ```
 
-### Remote vLLM (advanced)
+### Local GGUF (fallback)
 
-If you already have a vLLM server running the classifier:
+Loads the GGUF model in-process via `llama-cpp-python`. No external binary needed, but reloads on each invocation.
+
+```bash
+coding-router --classifier-backend local "your query"
+```
+
+### Remote server (advanced)
+
+Connect to any OpenAI-compatible server (vLLM, Ollama, llama-server):
 
 ```bash
 coding-router --classifier-backend vllm --classifier-base-url http://localhost:8000/v1 "your query"
@@ -167,11 +174,11 @@ coding-router --classifier-backend vllm --classifier-base-url http://localhost:8
 
 | Variable | Purpose |
 |---|---|
-| `CODING_ROUTER_CONFIG_DIR` | Override config directory (default: `~/.config/coding-router/`) |
+| `LLMROUTER_CONFIG` | Override catalog path (default: `./router/coding_llm.json`) |
 | `CODING_ROUTER_CACHE_DIR` | Override model cache directory (default: `~/.cache/coding-router/`) |
 | `OPENAI_API_KEY` | OpenAI models |
 | `ANTHROPIC_API_KEY` | Anthropic models |
-| `GOOGLE_API_KEY` | Google models |
+| `GEMINI_API_KEY` or `GOOGLE_API_KEY` | Google models |
 | `XAI_API_KEY` | xAI models |
 | `DEEPSEEK_API_KEY` | DeepSeek models |
 | `DASHSCOPE_API_KEY` | Alibaba/Qwen models |

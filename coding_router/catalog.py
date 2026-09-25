@@ -98,10 +98,6 @@ def load_catalog(
         for catalog_key, record in records.items():
             if not isinstance(record, dict):
                 continue
-            
-            # Skip disabled models
-            if not record.get("enabled", True):
-                continue
 
             profiles.append(
                 ModelProfile(
@@ -124,7 +120,7 @@ def load_catalog(
                 )
             )
     if not profiles and not allow_empty:
-        raise ValueError(f"No enabled model profiles found in {path}")
+        raise ValueError(f"No model profiles found in {path}")
     return profiles
 
 

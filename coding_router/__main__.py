@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 try:
@@ -15,8 +17,262 @@ except ImportError:
 
 from .router import CodingRouter, RouterConfig, MODE_WEIGHTS
 from .catalog import add_user_model
-from .config import default_catalog_path, default_index_path, default_user_models_path
+from .config import (
+    SERVICE_ENV_MAP,
+    _is_local_service,
+    bundled_catalog_path,
+    default_index_path,
+    default_user_models_path,
+    env_vars_for_service,
+    find_api_key,
+    load_json,
+    resolve_catalog_path,
+)
 from .embeddings import DEFAULT_EMBEDDING_MODEL
+
+
+# ---------------------------------------------------------------------------
+# Subcommand: init
+# ---------------------------------------------------------------------------
+
+
+def init_command(arguments: list[str]) -> int:
+    """Set up a project-local router/ directory with the model catalog."""
+    router_dir = Path("router")
+    catalog_path = router_dir / "coding_llm.json"
+    env_example_path = Path(".env.example")
+
+    # 1. Create router/ directory
+    router_dir.mkdir(parents=True, exist_ok=True)
+
+    # 2. Copy the bundled catalog template (never overwrite user edits)
+    if catalog_path.exists():
+        print(f"  ✓ Catalog already exists: {catalog_path}  (skipped, not overwriting)")
+    else:
+        bundled = bundled_catalog_path()
+        if not bundled.exists():
+            print(f"  ✗ Bundled template not found at {bundled}", file=sys.stderr)
+            return 1
+        catalog_path.write_text(bundled.read_text(encoding="utf-8"), encoding="utf-8")
+        print(f"  ✓ Created: {catalog_path}")
+
+    # 3. Generate .env.example from the catalog's service fields
+    data = load_json(catalog_path)
+    needed_vars: dict[str, str] = {}  # var_name → service_name
+    for group_name, models in data.items():
+        if not isinstance(models, dict):
+            continue
+        for key, record in models.items():
+            if not isinstance(record, dict):
+                continue
+            service = record.get("service", "")
+            if _is_local_service(service):
+                continue
+            for var in env_vars_for_service(service):
+                if var not in needed_vars:
+                    needed_vars[var] = service
+
+    if needed_vars:
+        lines = ["# Required API keys for coding-router", "#"]
+        for var, service in sorted(needed_vars.items()):
+            lines.append(f"# {service}")
+            lines.append(f"{var}=")
+        env_example_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        print(f"  ✓ Created: {env_example_path}")
+    else:
+        print("  ℹ No cloud API keys needed (only local models in catalog)")
+
+    # 4. Print next steps
+    print()
+    print("  Next steps:")
+    print(f"    1. Edit {catalog_path} — delete models you don't have access to")
+    print(f"    2. Set the required env vars (see {env_example_path})")
+    print("    3. Run: coding-router validate")
+    print()
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# Subcommand: validate
+# ---------------------------------------------------------------------------
+
+
+def validate_command(arguments: list[str]) -> int:
+    """Validate the catalog and check API key availability."""
+    parser = argparse.ArgumentParser(
+        prog="coding-router validate",
+        description="Validate the model catalog and check API keys / endpoints.",
+    )
+    parser.add_argument("--catalog", type=Path, default=None)
+    args = parser.parse_args(arguments)
+
+    try:
+        catalog_path = resolve_catalog_path(args.catalog)
+    except FileNotFoundError as e:
+        print(f"  ✗ {e}", file=sys.stderr)
+        return 1
+
+    # Load and validate JSON structure
+    try:
+        data = load_json(catalog_path)
+    except json.JSONDecodeError as e:
+        print(f"  ✗ Invalid JSON in {catalog_path}: {e}", file=sys.stderr)
+        return 1
+
+    if not isinstance(data, dict):
+        print(f"  ✗ {catalog_path}: Expected a JSON object at the top level", file=sys.stderr)
+        return 1
+
+    print(f"  Catalog: {catalog_path}\n")
+
+    required_fields = ("model", "service", "api_endpoint", "feature", "size", "input_price", "output_price")
+    has_errors = False
+    cloud_ok = 0
+    cloud_missing = 0
+    local_ok = 0
+    local_unreachable = 0
+
+    for group_name, models in data.items():
+        if not isinstance(models, dict):
+            continue
+        for key, record in models.items():
+            if not isinstance(record, dict):
+                print(f"  ✗ {key}: Expected a JSON object, got {type(record).__name__}", file=sys.stderr)
+                has_errors = True
+                continue
+
+            # Check required fields
+            missing_fields = [f for f in required_fields if f not in record]
+            if missing_fields:
+                print(
+                    f"  ✗ {key}: Missing required fields: {', '.join(missing_fields)}",
+                    file=sys.stderr,
+                )
+                has_errors = True
+                continue
+
+            service = record.get("service", "")
+            model_id = record.get("model", key)
+
+            if _is_local_service(service):
+                # Best-effort ping the endpoint
+                endpoint = record.get("api_endpoint", "")
+                reachable = False
+                if endpoint:
+                    try:
+                        url = endpoint.rstrip("/") + "/models"
+                        req = urllib.request.Request(url, method="GET")
+                        urllib.request.urlopen(req, timeout=3)
+                        reachable = True
+                    except Exception:
+                        pass
+
+                if reachable:
+                    print(f"  ✓ {model_id} ({service}) — endpoint reachable")
+                    local_ok += 1
+                else:
+                    print(f"  ⚠ {model_id} ({service}) — endpoint unreachable: {endpoint}")
+                    local_unreachable += 1
+            else:
+                # Cloud model: check API key
+                api_key = find_api_key(service)
+                candidate_vars = env_vars_for_service(service)
+                if api_key:
+                    print(f"  ✓ {model_id} ({service}) — key found")
+                    cloud_ok += 1
+                else:
+                    var_hint = " or ".join(candidate_vars) if candidate_vars else "???"
+                    print(f"  ✗ {model_id} ({service}) — set {var_hint}")
+                    cloud_missing += 1
+                    has_errors = True
+
+    print()
+    print(f"  Cloud: {cloud_ok} ready, {cloud_missing} missing keys")
+    print(f"  Local: {local_ok} reachable, {local_unreachable} unreachable")
+
+    if has_errors:
+        print()
+        print("  ⚠ Some models are missing API keys. Set them and re-run validate.")
+        return 1
+
+    print()
+    print("  ✓ All models validated successfully!")
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# Subcommand: models  (list all models with status)
+# ---------------------------------------------------------------------------
+
+
+def models_command(arguments: list[str]) -> int:
+    """List all available models and their status."""
+    parser = argparse.ArgumentParser(
+        prog="coding-router models",
+        description="List all models in the catalog.",
+    )
+    parser.add_argument("--catalog", type=Path, default=None)
+    args = parser.parse_args(arguments)
+
+    try:
+        catalog_path = resolve_catalog_path(args.catalog)
+    except FileNotFoundError as e:
+        print(f"  ✗ {e}", file=sys.stderr)
+        return 1
+
+    data = load_json(catalog_path)
+    print(f"  Catalog: {catalog_path}\n")
+
+    cloud_models = []
+    local_models = []
+
+    for group_name, models in data.items():
+        if not isinstance(models, dict):
+            continue
+        for key, record in models.items():
+            if not isinstance(record, dict):
+                continue
+            service = record.get("service", "?")
+            entry = {
+                "key": key,
+                "service": service,
+                "size": record.get("size", "?"),
+                "input_price": record.get("input_price", 0),
+                "output_price": record.get("output_price", 0),
+            }
+            if _is_local_service(service):
+                local_models.append(entry)
+            else:
+                local_models.append(entry) if _is_local_service(service) else cloud_models.append(entry)
+
+    def _print_table(title: str, entries: list[dict]) -> None:
+        if not entries:
+            return
+        print(f"  {title}")
+        print(f"  {'─' * 80}")
+        for e in entries:
+            price = (
+                f"${e['input_price']:.2f} / ${e['output_price']:.2f} per 1M tokens"
+                if e["input_price"] > 0 or e["output_price"] > 0
+                else "free (self-hosted)"
+            )
+            print(f"    {e['key']:<30s}  {e['service']:<28s}  {price}")
+        print()
+
+    _print_table("☁️  Cloud Models", cloud_models)
+    _print_table("🖥️  Local / Self-Hosted Models", local_models)
+
+    total = len(cloud_models) + len(local_models)
+    print(f"  {total} models in catalog")
+    print()
+    print("  To remove a model, delete its entry from the catalog JSON.")
+    print("  To add a model:  coding-router add-model --help")
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# Subcommand: add-model
+# ---------------------------------------------------------------------------
 
 
 def add_model_command(arguments: list[str]) -> int:
@@ -27,7 +283,7 @@ def add_model_command(arguments: list[str]) -> int:
     parser.add_argument(
         "--endpoint",
         required=True,
-        help="provider base URL; OpenAI-compatible by default, Anthropic/Google when selected",
+        help="provider base URL; OpenAI-compatible by default",
     )
     parser.add_argument("--feature", required=True, help="capabilities and ideal tasks; used for similarity")
     parser.add_argument("--service", default="OpenAI-compatible")
@@ -53,17 +309,14 @@ def add_model_command(arguments: list[str]) -> int:
         tier=args.tier,
         api_key_env=args.api_key_env,
     )
-    print(f"Added '{args.key}' to {user_catalog}. Rebuilds automatically on next route.")
+    print(f"  ✓ Added '{args.key}' to {user_catalog}")
+    print("  Index will rebuild automatically on next route.")
     return 0
 
 
-def init_command(arguments: list[str]) -> int:
-    """Copy the bundled model catalog template to the user's config directory."""
-    from .config import default_catalog_path as _init_catalog
-    path = _init_catalog()
-    print(f"Model catalog initialized at: {path}")
-    print("Edit this file to uncomment the models you want to use.")
-    return 0
+# ---------------------------------------------------------------------------
+# Subcommand: route (default)
+# ---------------------------------------------------------------------------
 
 
 def route_command(arguments: list[str]) -> int:
@@ -102,13 +355,13 @@ def route_command(arguments: list[str]) -> int:
     # Classifier backend options
     parser.add_argument(
         "--classifier-backend",
-        choices=("local", "vllm"),
-        default="local",
-        help="local runs GGUF locally via llama-cpp-python; vllm connects to a remote server",
+        choices=("llama-server", "local", "vllm"),
+        default="llama-server",
+        help="llama-server (default) auto-starts llama serve; local loads GGUF in-process; vllm connects to a remote server",
     )
     parser.add_argument("--classifier-model-path", help="path to a custom GGUF classifier model")
-    parser.add_argument("--classifier-base-url", default="http://127.0.0.1:8080", help="vLLM server URL (for --classifier-backend=vllm)")
-    parser.add_argument("--classifier-model", help="vLLM model ID; auto-detected when omitted")
+    parser.add_argument("--classifier-base-url", default="http://127.0.0.1:8080", help="server URL (for --classifier-backend=vllm)")
+    parser.add_argument("--classifier-model", help="server model ID; auto-detected when omitted")
     parser.add_argument(
         "--max-output-tokens",
         type=int,
@@ -118,9 +371,15 @@ def route_command(arguments: list[str]) -> int:
     parser.add_argument("--show-ranking", action="store_true", help="Include every similarity score in output")
     args = parser.parse_args(arguments)
 
+    try:
+        catalog_path = resolve_catalog_path(args.catalog)
+    except FileNotFoundError as e:
+        print(f"  ✗ {e}", file=sys.stderr)
+        return 1
+
     router = CodingRouter(
         RouterConfig(
-            catalog_path=args.catalog or default_catalog_path(),
+            catalog_path=catalog_path,
             user_catalog_path=args.user_catalog or default_user_models_path(),
             index_path=args.index or default_index_path(),
             embedding_model=args.embedding_model,
@@ -175,13 +434,24 @@ def route_command(arguments: list[str]) -> int:
     return 0 if not result.get("invocation_error") else 2
 
 
+# ---------------------------------------------------------------------------
+# Main dispatcher
+# ---------------------------------------------------------------------------
+
+
+SUBCOMMANDS = {
+    "init": init_command,
+    "validate": validate_command,
+    "models": models_command,
+    "add-model": add_model_command,
+}
+
+
 def main() -> int:
     if len(sys.argv) > 1:
         subcommand = sys.argv[1]
-        if subcommand == "add-model":
-            return add_model_command(sys.argv[2:])
-        if subcommand == "init":
-            return init_command(sys.argv[2:])
+        if subcommand in SUBCOMMANDS:
+            return SUBCOMMANDS[subcommand](sys.argv[2:])
     return route_command(sys.argv[1:])
 
 
