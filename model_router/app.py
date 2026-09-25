@@ -42,6 +42,7 @@ class RouterState(TypedDict, total=False):
     user_query: str
     route_only: bool
     force_advanced: bool
+    force_no_gating: bool  # benchmark-only: skip standard/advanced filtering
     routing_mode: RoutingMode
     alpha: float
     beta: float
@@ -67,7 +68,7 @@ class RouterConfig:
     user_catalog_path: Path | None = DEFAULT_USER_CATALOG_PATH
     index_path: Path = DEFAULT_INDEX_PATH
     embedding_model: str = DEFAULT_EMBEDDING_MODEL
-    classifier_base_url: str = "http://localhost:8000/v1"
+    classifier_base_url: str = "http://127.0.0.1:8080"
     classifier_model: str | None = None
     classifier_timeout: int = 30
     target_timeout: int = 90
@@ -305,15 +306,19 @@ class RouterServices:
         gap between the top candidate and cheaper alternatives.  When the
         gap is below ``quality_gap_threshold`` the cheaper model wins.
         """
-        matches = [
-            item
-            for item in state["ranked_models"]
-            if self.profile_by_key[item["catalog_key"]].advanced is advanced
-        ]
-        # The catalog could later contain no models in one subgroup. In that case,
-        # preserve service instead of failing a valid user request.
-        if not matches:
+        if state.get("force_no_gating"):
+            # Benchmark-only: consider all candidates regardless of group.
             matches = state["ranked_models"]
+        else:
+            matches = [
+                item
+                for item in state["ranked_models"]
+                if self.profile_by_key[item["catalog_key"]].advanced is advanced
+            ]
+            # The catalog could later contain no models in one subgroup. In that case,
+            # preserve service instead of failing a valid user request.
+            if not matches:
+                matches = state["ranked_models"]
 
         # ── Quality-gap cost-aware decision rule ──────────────────────
         threshold = state.get("quality_gap_threshold", 0.05)
@@ -420,6 +425,7 @@ class ModelRouter:
         *,
         route_only: bool = False,
         force_advanced: bool = False,
+        force_no_gating: bool = False,
         routing_mode: RoutingMode | None = None,
         alpha: float | None = None,
         beta: float | None = None,
@@ -444,6 +450,7 @@ class ModelRouter:
             "user_query": query,
             "route_only": route_only,
             "force_advanced": force_advanced,
+            "force_no_gating": force_no_gating,
             "routing_mode": mode,
             "estimated_input_tokens": max(1, math.ceil(len(query) / 4)),
             "estimated_output_tokens": output_tokens,

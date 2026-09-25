@@ -1,7 +1,27 @@
 __pycache__/
 *.py[cod]
 .venv/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Data files (not shipped in git)
 data/model_embeddings_*.npz
+data/routerbench_raw.csv
+data/routerbench_raw.pkl
+data/benchmark_embeddings_qwen3_0.6b.npz
+data/benchmark_models_embeddings_qwen3_0.6b.npz
+data/mbpp_benchmark_*.csv
+data/routerbench_raw_mbpp.csv
+
+# Paper / evaluation
 paper/
-*routerbench*
-*mbp*
+evaluation/
+
+# Environment
+.env
+*.pdf
+*.png
+*.csv
+.DS_Store

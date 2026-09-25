@@ -7,6 +7,12 @@ import json
 from pathlib import Path
 import sys
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from .app import (
     DEFAULT_CATALOG_PATH,
     DEFAULT_INDEX_PATH,
@@ -97,7 +103,7 @@ def route_command(arguments: list[str]) -> int:
     )
     parser.add_argument("--index", type=Path, default=DEFAULT_INDEX_PATH)
     parser.add_argument("--embedding-model", default=DEFAULT_EMBEDDING_MODEL)
-    parser.add_argument("--classifier-base-url", default="http://localhost:8000/v1")
+    parser.add_argument("--classifier-base-url", default="http://127.0.0.1:8080")
     parser.add_argument("--classifier-model", help="vLLM model ID; auto-detected when omitted")
     parser.add_argument(
         "--max-output-tokens",

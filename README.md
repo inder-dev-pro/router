@@ -1,136 +1,192 @@
-# LangGraph coding-model router
+# coding-router
 
-This project routes a coding request through the following graph:
+A lightweight LLM router that classifies coding requests and selects the best-fit model using semantic similarity and cost-aware scoring.
 
-```text
-user query
-  → Qwen/Qwen3-Embedding-0.6B query embedding
-  → existing Arch-Router vLLM classifier (localhost:8000)
-  → cosine similarity against embedded model catalog
-  → standard or advanced model subgroup
-  → selected model provider
+Based on the LLMRouter paper (Feng et al., 2026):
+
+```
+reward_m = α · perf_normalized(m) − β · cost_normalized(m)
 ```
 
-The model descriptions in `data/coding_llm_models.json` are embedded once using
-`Qwen/Qwen3-Embedding-0.6B`. The normalized vectors and catalog fingerprint are
-saved to `data/model_embeddings_qwen3_0.6b.npz`. Later runs reuse that file;
-changing the catalog or embedding model automatically rebuilds it.
+## Features
 
-Each document includes the capability description, deployment metadata, and token
-prices. Qwen cosine similarity is the capability-fit proxy. The decision rule then
-follows the paper's performance-minus-cost formulation:
-
-```text
-selected model = argmax_m [ wq * normalized_quality(m, query)
-                            + wc * (1 - normalized_estimated_request_cost(m)) ]
-```
-
-This is equivalent to maximizing performance minus a scaled cost penalty after
-normalizing the active candidate pool. Estimated request cost uses the input length
-and `--max-output-tokens` with each model's per-million-token rates.
+- **Local classifier** — runs the ModelGate router classifier locally via a quantised GGUF model (auto-downloaded). No external server needed.
+- **Semantic routing** — embeds your query and every model description with `Qwen3-Embedding-0.6B`, then ranks by cosine similarity + cost penalty.
+- **Cost-aware selection** — five built-in routing modes from quality-only to cost-dominant, plus arbitrary `(α, β)` overrides.
+- **Cross-platform** — Metal acceleration on macOS, CPU/CUDA on Windows and Linux.
+- **Project-local config** — catalog lives in `./router/coding_llm.json`, safe to commit to git.
 
 ## Install
 
-Use a Python environment with PyTorch appropriate for the local GPU/CPU, then:
-
 ```bash
-cd /Users/indersharma/Developer/router
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+pip install coding-router
 ```
 
-The first embedding build downloads the Qwen embedding weights from Hugging Face.
-Keep the vLLM classification server running at `http://localhost:8000/v1`.
-The encoder follows Qwen's documented left-padding and normalized last-token pooling recipe.
+### Platform notes
 
-## Build the persisted index
+| Platform | What happens |
+|---|---|
+| **macOS (Apple Silicon)** | `llama-cpp-python` auto-uses Metal for GPU acceleration |
+| **macOS (Intel)** | CPU-only inference, works fine for the classifier |
+| **Windows** | CPU by default; install `llama-cpp-python` with CUDA support for GPU |
+| **Linux** | GPU offloading attempted by default; falls back to CPU |
+
+## Quick start
+
+### 1. Initialise the project
 
 ```bash
-python -m model_router --build-index
+cd your-project/
+coding-router init
 ```
 
-## Route without calling a provider
+This creates:
+- `router/coding_llm.json` — model catalog (all models included)
+- `.env.example` — lists the API key env vars you need to set
 
-This is the recommended first check. It calls the local classifier and produces
-the selected catalog record, but does not send the request to a cloud/local target.
+### 2. Edit the catalog
+
+Open `router/coding_llm.json` and **delete any models you don't have access to**. Every model present in the file is available for routing.
+
+### 3. Set API keys
 
 ```bash
-python -m model_router --route-only "Fix an intermittent race condition in our Python worker"
-python -m model_router --route-only --force-advanced "Plan a multi-service migration"
-python -m model_router --route-only --mode cost_efficient "Generate a small Python utility"
+# Copy the example and fill in your keys
+cp .env.example .env
+
+# Or export directly:
+export OPENAI_API_KEY=...
+export ANTHROPIC_API_KEY=...
+export GOOGLE_API_KEY=...
+```
+
+> **Note:** API keys are never stored in the catalog. They're always read from environment variables at runtime. `router/coding_llm.json` is safe to commit to git.
+
+### 4. Validate your setup
+
+```bash
+coding-router validate
+```
+
+This checks:
+- ✓ JSON structure is valid
+- ✓ All required fields are present
+- ✓ Cloud models have their API keys set
+- ✓ Local model endpoints are reachable
+
+### 5. Route a query
+
+```bash
+# Route without calling a provider (dry run):
+coding-router --route-only "Fix an intermittent race condition in our Python worker"
+
+# Route and invoke the selected model:
+coding-router "Design a caching layer for this API"
+```
+
+## Python API
+
+```python
+from coding_router import CodingRouter, RouterConfig
+
+router = CodingRouter()
+result = router.route("Fix this race condition", route_only=True)
+
+print(result["selected_model"]["catalog_key"])  # e.g. "claude-sonnet-5"
+print(result["classifier_category"])            # e.g. "bug_fixing"
+print(result["selected_model"]["reward"])        # cost-adjusted score
+```
+
+### Custom configuration
+
+```python
+from pathlib import Path
+from coding_router import CodingRouter, RouterConfig
+
+router = CodingRouter(RouterConfig(
+    catalog_path=Path("router/coding_llm.json"),
+    routing_mode="cost_efficient",       # favour cheaper models
+    classifier_backend="llama-server",   # default: auto-starts llama serve
+    target_max_tokens=2048,
+))
 ```
 
 ## Routing modes
 
-| Mode | Quality weight | Cost-efficiency weight | Use it when |
-| --- | ---: | ---: | --- |
-| `cost_efficient` | 0.15 | 0.85 | Cost should dominate, without restricting the route to open-source models. |
-| `skill_based` | 1.00 | 0.00 | The most capable semantic match matters regardless of price. |
-| `mixed` (default) | 0.65 | 0.35 | You want a balanced quality/cost decision. |
+| Mode | α (quality) | β (cost) | Use it when |
+|---|---:|---:|---|
+| `skill_based` | 1.0 | 0.0 | Best semantic match regardless of price |
+| `quality_leaning` | 0.8 | 0.2 | Slight cost awareness |
+| `mixed` (default) | 0.6 | 0.4 | Balanced quality/cost decision |
+| `cost_sensitive` | 0.4 | 0.6 | Cost matters more than quality |
+| `cost_efficient` | 0.2 | 0.8 | Cost should dominate |
 
-The graph runs an advanced subgroup for explicit complex-work cues. In
-`skill_based` mode it may also enter that subgroup when the best semantic match is
-an advanced model.
+Override with `--alpha` and `--beta` for arbitrary sweep points.
 
-## Add models you use
+## CLI commands
 
-Your own candidates live in `data/user_models.json` and can be mixed with the
-supplied catalog or routed exclusively. Add a local vLLM/Ollama server:
+| Command | What it does |
+|---|---|
+| `coding-router init` | Create `router/` dir with catalog + `.env.example` |
+| `coding-router validate` | Check catalog, API keys, and endpoints |
+| `coding-router models` | List all models in the catalog |
+| `coding-router add-model` | Add a custom model to the catalog |
+| `coding-router "query"` | Route (and optionally invoke) a query |
+| `coding-router --route-only "query"` | Select a model without invoking |
 
+## Config resolution
+
+The router looks for the model catalog in this order:
+
+1. Explicit `--catalog` path passed on the CLI
+2. `LLMROUTER_CONFIG` environment variable
+3. `./router/coding_llm.json` (project-local)
+4. Error telling you to run `coding-router init`
+
+## Classifier backends
+
+### llama-server (default, recommended)
+
+Auto-starts `llama serve -hf AaryanK/ModelGate:Q8_0` as a background process. The model stays loaded across calls for fast subsequent requests.
+
+Requires `llama.cpp` installed:
 ```bash
-python -m model_router add-model \
-  --key my-local-coder \
-  --model my-coder-model \
-  --endpoint http://localhost:9000/v1 \
-  --feature "Fast local coding model for Python, TypeScript, debugging, and code generation" \
-  --size "14B" \
-  --input-price 0 --output-price 0
+brew install llama.cpp  # macOS
 ```
 
-Or add a cloud OpenAI-compatible provider with real prices and an optional key
-environment-variable name:
+### Local GGUF (fallback)
+
+Loads the GGUF model in-process via `llama-cpp-python`. No external binary needed, but reloads on each invocation.
 
 ```bash
-python -m model_router add-model \
-  --key team-cloud-coder \
-  --model provider-coder-v1 \
-  --endpoint https://provider.example/v1 \
-  --feature "Advanced agentic model for repository refactors, security reviews, and migrations" \
-  --size "Unknown" --tier advanced \
-  --input-price 0.8 --output-price 3.2 \
-  --api-key-env TEAM_CLOUD_CODER_API_KEY
+coding-router --classifier-backend local "your query"
 ```
 
-Use only your added, available models with `--pool user`. Adding or updating a
-model automatically invalidates and rebuilds the persisted embedding index on the
-next route.
+### Remote server (advanced)
 
-## Route and invoke
-
-Omit `--route-only` to send the user query to the selected endpoint:
+Connect to any OpenAI-compatible server (vLLM, Ollama, llama-server):
 
 ```bash
-export OPENAI_API_KEY=...
-export ANTHROPIC_API_KEY=...
-export GOOGLE_API_KEY=...
-python -m model_router "Design a caching layer for this API"
+coding-router --classifier-backend vllm --classifier-base-url http://localhost:8000/v1 "your query"
 ```
 
-The router uses the appropriate key for the selected service. Supported names are
-`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY`,
-`DEEPSEEK_API_KEY`, `DASHSCOPE_API_KEY`, `MISTRAL_API_KEY`, `ZAI_API_KEY`,
-`MOONSHOT_API_KEY`, `MINIMAX_API_KEY`, and `LOCAL_LLM_API_KEY`. For a proxy or
-model-specific credential, set `MODEL_ROUTER_<CATALOG_KEY>_API_KEY`, replacing
-hyphens with underscores. Local Ollama/vLLM servers work with no key when they do
-not require authentication.
+## Environment variables
 
-## Advanced subgroup
+| Variable | Purpose |
+|---|---|
+| `LLMROUTER_CONFIG` | Override catalog path (default: `./router/coding_llm.json`) |
+| `CODING_ROUTER_CACHE_DIR` | Override model cache directory (default: `~/.cache/coding-router/`) |
+| `OPENAI_API_KEY` | OpenAI models |
+| `ANTHROPIC_API_KEY` | Anthropic models |
+| `GEMINI_API_KEY` or `GOOGLE_API_KEY` | Google models |
+| `XAI_API_KEY` | xAI models |
+| `DEEPSEEK_API_KEY` | DeepSeek models |
+| `DASHSCOPE_API_KEY` | Alibaba/Qwen models |
+| `MISTRAL_API_KEY` | Mistral AI models |
+| `ZAI_API_KEY` | Z.ai (Zhipu) models |
+| `MOONSHOT_API_KEY` | Moonshot AI models |
+| `MINIMAX_API_KEY` | MiniMax models |
 
-The graph has separate `standard_model_group` and `advanced_model_group` nodes.
-Complexity cues such as architecture, repository-wide changes, migrations,
-security audits, and long input automatically select the advanced group. Use
-`--force-advanced` to override it. The advanced list is explicit in
-`model_router/catalog.py`, making the cost/quality policy easy to audit.
+## License
 
-Use `--show-ranking` to inspect every semantic score and category tie-breaker.
+MIT

@@ -1,0 +1,42 @@
+# Block Git History & Metadata (Prevents reading past commits with your real name)
+.git/
+.git***
+
+# Block System & Environment Files
+.env
+.env.*
+*.env
+.vsc/
+.vscode/
+.idea/
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Block System Logs and Diagnostic Files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Block Cloud & OS Configurations
+.serverless/
+.aws/
+.config/
+*.md
+**/*.md
+evaluation/routerbench_mbpp/plot_results.py
+
+# Block Package Managers & Build Artifacts (Keep context clean)
+node_modules/
+bower_components/
+jspm_packages/
+.npm/
+.yarn/
+.pnpm-store/
+dist/
+build/
+out/
+.next/
+.nuxt/

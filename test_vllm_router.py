@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Test an Arch-Router-style model served by vLLM's OpenAI-compatible API.
+"""Test an adapted-arch-router-style model served by vLLM's OpenAI-compatible API.
 
 Examples:
   python test_vllm_router.py
   python test_vllm_router.py --message "Write a Python CSV parser"
-  python test_vllm_router.py --model katanemo/Arch-Router-1.5B --verbose
+  python test_vllm_router.py --model katanemo/adapted-arch-router-1.5B --verbose
 
 Start vLLM first, for example:
-  vllm serve katanemo/Arch-Router-1.5B --trust-remote-code --port 8000
+  vllm serve katanemo/adapted-arch-router-1.5B --trust-remote-code --port 8000
 """
 
 import argparse
